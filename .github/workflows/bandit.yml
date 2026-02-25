@@ -64,7 +64,7 @@ jobs:
       # --------------------------------------------------------
       - name: Generate Bandit HTML Report
         run: |
-          bandit problematic_app.py -v -f html -o bandit-report.html || true
+          bandit app.py -v -f html -o bandit-report.html || true
 
       # --------------------------------------------------------
       # Step 6: Upload the HTML report as an artifact
