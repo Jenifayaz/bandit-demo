@@ -23,6 +23,19 @@ jobs:
           python -m pip install --upgrade pip
           pip install bandit
 
-      - name: Run Bandit
+      # Run Bandit and generate HTML report
+      - name: Run Bandit and Generate HTML Report
+        run: |
+          bandit -r . -f html -o bandit-report.html -lll || true
+
+      # Upload HTML report as artifact
+      - name: Upload Bandit HTML Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: bandit-html-report
+          path: bandit-report.html
+
+      # Fail job if high severity issues exist
+      - name: Fail if High Severity Issues Found
         run: |
           bandit -r . -lll
