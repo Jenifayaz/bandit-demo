@@ -4,9 +4,7 @@
 name: Bandit Security Scan
 
 # ------------------------------------------------------------
-# When this workflow should run
-# - On every push to main
-# - On every pull request
+# Run on every push to main or on pull requests
 # ------------------------------------------------------------
 on:
   push:
@@ -18,13 +16,12 @@ on:
 # ------------------------------------------------------------
 jobs:
   bandit:
-    # OS where the job runs
     runs-on: ubuntu-latest
 
     steps:
       # --------------------------------------------------------
       # Step 1: Checkout repository code
-      # This pulls your repo content into the runner
+      # Pulls your repo content into the runner
       # --------------------------------------------------------
       - name: Checkout code
         uses: actions/checkout@v4
@@ -48,8 +45,8 @@ jobs:
           pip install bandit
 
       # --------------------------------------------------------
-      # Step 4: Debug (optional but VERY useful)
-      # Lists files so we confirm problematic_app.py exists
+      # Step 4: Debug – list repository files
+      # Optional but useful to verify files exist in runner
       # --------------------------------------------------------
       - name: Debug – list repository files
         run: |
@@ -57,18 +54,18 @@ jobs:
 
       # --------------------------------------------------------
       # Step 5: Generate Bandit HTML report
-      # - Scans ONLY problematic_app.py
-      # - -v enables verbose output
-      # - HTML report is created even if issues exist
-      # - || true prevents job from stopping early
+      # - Recursive scan of all Python files
+      # - Verbose output
+      # - HTML report created even if issues exist
+      # - || true prevents early exit
       # --------------------------------------------------------
       - name: Generate Bandit HTML Report
         run: |
-          bandit app.py -v -f html -o bandit-report.html || true
+          bandit -r . -v -f html -o bandit-report.html || true
 
       # --------------------------------------------------------
-      # Step 6: Upload the HTML report as an artifact
-      # This allows downloading it from GitHub Actions UI
+      # Step 6: Upload the HTML report as artifact
+      # Allows downloading from GitHub Actions UI
       # --------------------------------------------------------
       - name: Upload Bandit HTML Report
         uses: actions/upload-artifact@v4
@@ -78,9 +75,8 @@ jobs:
 
       # --------------------------------------------------------
       # Step 7: Enforce security policy
-      # - -ll means fail on MEDIUM and HIGH severity
-      # - This step FAILS the workflow if vulnerabilities exist
+      # - Fail workflow on Medium+ severity issues
       # --------------------------------------------------------
       - name: Enforce Bandit Policy (Fail on Medium+)
         run: |
-          bandit app.py -ll
+          bandit -r . -ll
